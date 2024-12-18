@@ -24,20 +24,6 @@ export class FilesController {
         limits: {
           fileSize: parseInt(process.env.FILE_SIZE_LIMIT) || 10 * 1024 * 1024,
         },
-        // Allowed files type
-        fileFilter: (req, file, callback) => {
-          const allowedTypes = (
-            process.env.ALLOWED_FILE_TYPES ||
-            'application/pdf,text/csv,application/vnd.ms-excel'
-          ).split(',');
-          if (!allowedTypes.includes(file.mimetype)) {
-            return callback(
-              new BadRequestException('Invalid file type'),
-              false,
-            );
-          }
-          callback(null, true);
-        },
       },
     ),
   )

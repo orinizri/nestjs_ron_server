@@ -8,6 +8,9 @@ async function bootstrap() {
   // Get port from env
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT');
+  app.enableCors({
+    origin: 'http://localhost:3000', // React frontend URL
+  });
   await app.listen(port || 8000);
   console.log(`Server is running at port ${port || 8000}`)
 }
