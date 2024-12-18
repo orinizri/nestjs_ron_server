@@ -6,8 +6,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { memoryStorage } from 'multer';
 
 @Controller('files')
 export class FilesController {
@@ -19,17 +18,9 @@ export class FilesController {
       'files',
       Number(process.env.MAXIMUM_NUMBER_OF_FILES) || 10,
       {
-        storage: diskStorage({
-          destination: process.env.UPLOAD_DIRECTORY || './uploads', // Temporary storage location
-          filename: (req, file, callback) => {
-            const fileExtName = extname(file.originalname);
-            const sanitizedFileName = file.originalname
-              .replace(fileExtName, '')
-              .replace(/\s+/g, '_');
-            callback(null, `${sanitizedFileName}-${Date.now()}${fileExtName}`);
-          },
-        }),
-        // 10 MB size limit
+        // Stored in memory
+        storage: memoryStorage(),
+        // 10MB size limit for each file
         limits: {
           fileSize: parseInt(process.env.FILE_SIZE_LIMIT) || 10 * 1024 * 1024,
         },
