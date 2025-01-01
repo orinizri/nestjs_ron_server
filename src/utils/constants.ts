@@ -36,12 +36,12 @@ export const FILES_ALLOWED_EXTENSIONS = {
   png: { types: ['image/png'], hex_prefix: ['89504E470D0A1A0A'], isImage: true },
   jpg: {
     types: ['image/pjpeg', 'image/jpeg'],
-    hex_prefix: ['FFD8FFE0', 'FFD8FFE1', 'FFD8FFE000104A4649460001', 'FFD8FFEE', 'FFD8FFDB'],
+    hex_prefix: ['FFD8FFE0', 'FFD8FFE1', 'FFD8FFE000104A46', 'FFD8FFEE', 'FFD8FFDB'],
     isImage: true,
   },
   jpeg: {
     types: ['image/pjpeg', 'image/jpeg'],
-    hex_prefix: ['FFD8FFE1', 'FFD8FFE000104A4649460001', 'FFD8FFEE', 'FFD8FFDB'],
+    hex_prefix: ['FFD8FFE1', 'FFD8FFE000104A464946', 'FFD8FFEE', 'FFD8FFDB'],
     isImage: true,
   },
 };

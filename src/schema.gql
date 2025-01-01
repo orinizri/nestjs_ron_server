@@ -1,0 +1,23 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Customer {
+  id: Float!
+  firstName: String!
+  lastName: String!
+  lastFileUpdated: DateTime!
+  mobile: String!
+  dateOfBirth: String!
+  gender: String!
+  isActive: Boolean!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Query {
+  customers: [Customer!]!
+}

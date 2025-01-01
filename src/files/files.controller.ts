@@ -12,6 +12,8 @@ import {
   FILES_ALLOWED_EXTENSIONS,
   FILE_SIZE_LIMIT,
 } from '../utils/constants.js';
+import { DataSource } from 'typeorm';
+import { Customer } from 'src/customers/customers.entity';
 
 interface datesModifiedInterface {
   lastModified: number[];
@@ -19,8 +21,9 @@ interface datesModifiedInterface {
 
 @Controller('files')
 export class FilesController {
-  constructor() {}
+  constructor(private dataSource: DataSource) {}
 
+  // Helpers
   validateFile(file: Express.Multer.File) {
     // File exists check
     if (!file?.buffer) {
@@ -51,27 +54,25 @@ export class FilesController {
     ) {
       return {
         valid: false,
-        name: file.filename,
         origin: file.originalname,
         error: 'Extension is not allowed',
       };
     }
     // File signature congruency check
     if (
-      !file.buffer
-        .toString('hex')
-        .startsWith(FILES_ALLOWED_EXTENSIONS[extension].hex_prefix)
+      !FILES_ALLOWED_EXTENSIONS[extension].hex_prefix.some(hex => file.buffer
+        .toString('hex').toUpperCase()
+        .startsWith(hex))
     ) {
+      console.log("@@@", FILES_ALLOWED_EXTENSIONS[extension].hex_prefix)
       return {
         valid: false,
-        name: file.filename,
         origin: file.originalname,
-        error: `Invalid signature (${file.mimetype}, ${file.buffer.toString('hex').slice(0, 10)})`,
+        error: `Invalid signature (${file.mimetype}, ${file.buffer.toString('hex').slice(0, 50)})`,
       };
     }
     return {
       valid: true,
-      name: file.filename,
       origin: file.originalname,
       error: null,
     };
@@ -98,6 +99,7 @@ export class FilesController {
     return { valid: true, data: lastModifiedDate };
   }
 
+  // files/upload route
   @Post('upload')
   @UseInterceptors(
     FilesInterceptor('files', null, {
@@ -111,11 +113,10 @@ export class FilesController {
       preservePath: true,
     }),
   )
-  uploadFiles(
+  async uploadFiles(
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Body() { lastModified }: datesModifiedInterface,
   ) {
-    console.log('dates', lastModified);
     try {
       const errors = [];
       const filesSummary = [];
@@ -123,7 +124,7 @@ export class FilesController {
       if (!files || files.length === 0) {
         throw new BadRequestException('No files uploaded');
       }
-      // Got files
+      // Loop across files
       for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
         console.log(
           files[fileIndex],
@@ -131,9 +132,11 @@ export class FilesController {
           new Date(Number(lastModified[fileIndex])),
         );
         // Validate file's last modified timestamp
-        const lastModifiedDate = this.validateTimestampAndConvertToDate(lastModified[fileIndex]);
+        const lastModifiedDate = this.validateTimestampAndConvertToDate(
+          lastModified[fileIndex],
+        );
         if (!lastModifiedDate.valid) {
-          errors.push(lastModifiedDate.error)
+          errors.push(lastModifiedDate.error);
           continue;
         }
         const isFileValid = this.validateFile(files[fileIndex]);
@@ -141,21 +144,44 @@ export class FilesController {
           errors.push(isFileValid);
           continue;
         }
-        // TODO: Check if the customer is already in the file, add it or update it with the relevant information from the file
-        
+        // Check there is a folder's path with file
+        const fullPath = Buffer.from(
+          files[fileIndex].originalname,
+          'latin1',
+        ).toString('utf-8');
+        if (!fullPath) {
+          errors.push({
+            valid: false,
+            origin: files[fileIndex].originalname,
+            error: 'Missing path',
+          });
+          continue;
+        }
+        // TODO: Check if the customer is already in the server
+        const [customerName, customerLastName] = fullPath.split('/')[0].split(' ');
+        console.log("customerName", customerName, "customerLastName", customerLastName)
+        const customer = await this.dataSource.getRepository(Customer).findOne({
+          where: {
+            firstName: customerName,
+            lastName: customerLastName,
+          }
+        })
+        console.log("customer", customer)
+        // Add it or update it with the relevant information from the file
+
         // Parse and validate file content - required columns for xls or proper document structure
 
         // Connect to my local db (SQL)
 
-        // If the file's last modified date is older than the last update time in the database, skip processing.        
+        // If the file's last modified date is older than the last update time in the database, skip processing.
 
         // Else start a transaction.
-        
-        // Update the necessary rows based on the file data.
-        
-        // Commit the transaction only if all rows are successfully updated.        
-      }
 
+        // Update the necessary rows based on the file data.
+
+        // Commit the transaction only if all rows are successfully updated.
+      }
+      console.log('errors@:', errors);
       return {
         message: 'Files received successfully',
         files: files.map((file) => ({
