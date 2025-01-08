@@ -5,6 +5,7 @@
 type Customer {
   id: Float!
   firstName: String!
+  middleName: String!
   lastName: String!
   lastFileUpdated: DateTime!
   mobile: String!

@@ -22,8 +22,7 @@ import { join } from 'path';
       username: process.env.SQL_USERNAME,
       password: process.env.SQL_PASSWORD,
       database: process.env.SQL_DATABASE,
-      entities: [],
-      synchronize: true,
+      synchronize: true, // Should be false in production
       autoLoadEntities: true,
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({

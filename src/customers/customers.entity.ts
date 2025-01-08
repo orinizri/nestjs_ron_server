@@ -5,35 +5,64 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { IsEnum } from 'class-validator';
+import { IsBoolean, IsDate, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { GenderEnum } from 'src/utils/enums';
 import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 @Entity('customers')
 export class Customer {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'bigint'})
   @Field()
+  @IsNotEmpty()
   id: number;
 
   @Column()
   @Field()
+  @IsNotEmpty()
+  @IsString()
   firstName: string;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  middleName: string;
 
   @Column()
   @Field()
+  @IsNotEmpty()
+  @IsString()
   lastName: string;
 
   @Column()
   @Field()
+  @IsNotEmpty()
+  @IsDate()
   lastFileUpdated: Date;
 
-  @Column({ length: 11 })
+  @Column()
   @Field()
+  @IsNotEmpty()
+  @IsString()
+  countryCode: string;
+
+  @Column()
+  @Field()
+  @IsNotEmpty()
+  @IsString()
   mobile: string;
+
+  @Column()
+  @Field()
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
 
   @Column({ default: null })
   @Field()
+  @IsNotEmpty()
+  @IsDate()
   dateOfBirth: string;
 
   @Column({ type: 'enum', enum: GenderEnum })
@@ -41,20 +70,32 @@ export class Customer {
   @IsEnum(GenderEnum, { message: 'Role must be one of male, female, other' })
   gender: string;
 
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  @IsBoolean()
+  hasRegistrationDetails: boolean;
+  
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  @IsBoolean()
+  registrationDetailsCompleted: boolean;
+
+  @Column({ default: true })
+  @Field({ defaultValue: true })
+  isActive: boolean;
+
+  // Created at
   @CreateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',
   })
   createdAt: Date;
 
+  // Updated at
   @UpdateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',
     onUpdate: 'CURRENT_TIMESTAMP(6)',
   })
   updatedAt: Date;
-
-  @Column({ default: true })
-  @Field()
-  isActive: boolean;
 }
