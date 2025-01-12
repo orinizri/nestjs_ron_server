@@ -13,7 +13,6 @@ import { Field, ObjectType } from '@nestjs/graphql';
 @Entity('customers')
 export class Customer {
   @PrimaryGeneratedColumn({ type: 'bigint'})
-  @Field()
   @IsNotEmpty()
   id: number;
 
@@ -79,6 +78,16 @@ export class Customer {
   @Field({ nullable: true })
   @IsBoolean()
   registrationDetailsCompleted: boolean;
+  
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  @IsBoolean()
+  hasPassportCopy: boolean;
+  
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  @IsString()
+  passportCountry: string;
 
   @Column({ default: true })
   @Field({ defaultValue: true })

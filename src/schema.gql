@@ -3,14 +3,19 @@
 # ------------------------------------------------------
 
 type Customer {
-  id: Float!
   firstName: String!
-  middleName: String!
+  middleName: String
   lastName: String!
   lastFileUpdated: DateTime!
+  countryCode: String!
   mobile: String!
+  email: String!
   dateOfBirth: String!
   gender: String!
+  hasRegistrationDetails: Boolean
+  registrationDetailsCompleted: Boolean
+  hasPassportCopy: Boolean
+  passportCountry: String
   isActive: Boolean!
 }
 
