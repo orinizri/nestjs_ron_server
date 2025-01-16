@@ -7,6 +7,7 @@ import {
 } from './files.helpers';
 import { Customer } from 'src/customers/customers.entity';
 import { CreateCustomerDto } from 'src/customers/dto/customer.dto';
+import { FILE_CONTENT } from 'src/utils/translations';
 
 @Injectable()
 export class FilesService {
@@ -28,11 +29,13 @@ export class FilesService {
         throw new BadRequestException('No files uploaded');
       }
       // Loop across files
-      const customersToUpdate : Partial<CreateCustomerDto>[] = [{
-        firstName: 'אבי',
-        middleName: null,
-        lastName: 'פן'
-      }];
+      const customersToUpdate: Partial<CreateCustomerDto>[] = [
+        {
+          firstName: 'אבי',
+          middleName: null,
+          lastName: 'פן',
+        },
+      ];
       for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
         console.log(
           files[fileIndex],
@@ -65,25 +68,41 @@ export class FilesService {
           });
           continue;
         }
-        console.log("fullPath", fullPath)
+        console.log('fullPath', fullPath);
         // Extract from path customer name
         const [customerName, customerMiddleName, customerLastName] = fullPath
           .split('/')[0]
           .split(' ');
-          const customerFullName = {
-            firstName: customerName,
-            middleName: customerLastName ? customerMiddleName : null,
-            lastName: customerLastName || customerMiddleName,
-          }
-        const customerExists = customersToUpdate.findIndex(customerToUpdate => compareNames(customerFullName, customerToUpdate.firstName, customerToUpdate.middleName, customerToUpdate.lastName))
-        console.log("!@#", customerExists);
-        
-          // Extract from path file name and type
+        const customerFullName = {
+          firstName: customerName,
+          middleName: customerLastName ? customerMiddleName : null,
+          lastName: customerLastName || customerMiddleName,
+        };
+        const customerExists = customersToUpdate.findIndex((customerToUpdate) =>
+          compareNames(
+            customerFullName,
+            customerToUpdate.firstName,
+            customerToUpdate.middleName,
+            customerToUpdate.lastName,
+          ),
+        );
+        console.log('!@#', customerExists);
+
+        // Extract from path file name and type
         const [fileName, fileType] = fullPath.split('/')[1].split('.');
-        console.log("fileName", fileName);
-        console.log("fileType", fileType);
+        console.log('fileName', fileName);
+        console.log('fileType', fileType);
         // Investigate file content with FILE_CONTENT
-        // Update most up to date last modified file date 
+        let contentType = '';
+        for (let [key, values] of Object.entries(FILE_CONTENT)) {
+          for (let value of values) {
+            if (fileName.includes(value)) {
+              contentType = key;
+              break
+            }
+          }
+        }
+        // Update most up to date last modified file date
 
         // Create/Update customer
         let customer = await this.dataSource.getRepository(Customer).findOne({
@@ -92,12 +111,10 @@ export class FilesService {
         console.log('customer', customer);
         // Add it or update it with the relevant information from the file
         if (customer === null) {
-           const newCustomer = this.dataSource.getRepository(Customer).create({
+          const newCustomer = this.dataSource.getRepository(Customer).create({
             ...customerFullName,
-            
-           })
+          });
         } else {
-          
         }
         // Parse and validate file content - required columns for xls or proper document structure
 

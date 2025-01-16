@@ -20,7 +20,7 @@ export class FilesController {
     FilesInterceptor('files', null, {
       // Stored in memory
       storage: memoryStorage(),
-      // 10MB size limit for each file
+      // 10MB size limit for each file - for now receive
       // limits: {
       //   fileSize: parseInt(process.env.FILE_SIZE_LIMIT) || 10 * 1024 * 1024,
       // },

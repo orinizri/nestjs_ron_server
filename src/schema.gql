@@ -6,16 +6,21 @@ type Customer {
   firstName: String!
   middleName: String
   lastName: String!
-  lastFileUpdated: DateTime!
   countryCode: String!
   mobile: String!
   email: String!
   dateOfBirth: String!
   gender: String!
-  hasRegistrationDetails: Boolean
-  registrationDetailsCompleted: Boolean
-  hasPassportCopy: Boolean
-  passportCountry: String
+  hasID: Boolean
+  hasRegistrationDocument: Boolean
+  registrationDocumentUpdatedAt: DateTime!
+  familyTreeFile: Boolean!
+  familyTreeFileUpdatedAt: DateTime!
+  passports: String
+  additional_files: String
+  country: String
+  receivedPriceOffer: Boolean
+  signedPriceOffer: Boolean
   isActive: Boolean!
 }
 

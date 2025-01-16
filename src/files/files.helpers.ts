@@ -77,10 +77,6 @@ export function validateTimestampAndConvertToDate(timestamp: string | number): {
 }
 
 export function compareNames(fullNameObject, firstName, middleName, lastName) {
-  console.log("entered")
   if (!fullNameObject) return false;
-  console.log("@@@", fullNameObject.firstName , firstName , fullNameObject.middleName , middleName , fullNameObject.lastName, lastName);
-  const nameMatch = fullNameObject.firstName === firstName && fullNameObject.middleName === middleName && fullNameObject.lastName === lastName;
-  console.log("!!!", nameMatch)
-  return nameMatch
+  return fullNameObject.firstName === firstName && fullNameObject.middleName === middleName && fullNameObject.lastName === lastName;
 }

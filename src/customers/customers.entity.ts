@@ -5,14 +5,22 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { IsBoolean, IsDate, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsDate,
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { GenderEnum } from 'src/utils/enums';
 import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 @Entity('customers')
 export class Customer {
-  @PrimaryGeneratedColumn({ type: 'bigint'})
+  @PrimaryGeneratedColumn({ type: 'bigint' })
   @IsNotEmpty()
   id: number;
 
@@ -33,12 +41,6 @@ export class Customer {
   @IsNotEmpty()
   @IsString()
   lastName: string;
-
-  @Column()
-  @Field()
-  @IsNotEmpty()
-  @IsDate()
-  lastFileUpdated: Date;
 
   @Column()
   @Field()
@@ -72,22 +74,54 @@ export class Customer {
   @Column({ nullable: true })
   @Field({ nullable: true })
   @IsBoolean()
-  hasRegistrationDetails: boolean;
-  
+  hasID: boolean;
+
   @Column({ nullable: true })
   @Field({ nullable: true })
   @IsBoolean()
-  registrationDetailsCompleted: boolean;
-  
-  @Column({ nullable: true })
-  @Field({ nullable: true })
+  hasRegistrationDocument: boolean;
+
+  @Column()
+  @Field()
+  @IsOptional()
+  @IsDate()
+  registrationDocumentUpdatedAt: Date;
+
+  @Column({ nullable: false })
+  @Field({ nullable: false })
   @IsBoolean()
-  hasPassportCopy: boolean;
-  
+  familyTreeFile: boolean;
+
+  @Column({ nullable: false })
+  @Field({ nullable: false })
+  @IsOptional()
+  @IsDate()
+  familyTreeFileUpdatedAt: Date;
+
+  @Column({ type: 'text', nullable: true })
+  @Field({ nullable: true })
+  @IsString()
+  passports: string;
+
+  @Column({ type: 'text', nullable: true })
+  @Field({ nullable: true })
+  @IsString()
+  additional_files: string;
+
   @Column({ nullable: true })
   @Field({ nullable: true })
   @IsString()
-  passportCountry: string;
+  country: string;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  @IsBoolean()
+  receivedPriceOffer: Boolean;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  @IsBoolean()
+  signedPriceOffer: boolean;
 
   @Column({ default: true })
   @Field({ defaultValue: true })
