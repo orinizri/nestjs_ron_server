@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import {
   compareNames,
+  parseDocxBuffer,
   validateFile,
   validateTimestampAndConvertToDate,
 } from './files.helpers';
@@ -30,18 +31,13 @@ export class FilesService {
       }
       // Loop across files
       const customersToUpdate: Partial<CreateCustomerDto>[] = [
-        {
-          firstName: 'אבי',
-          middleName: null,
-          lastName: 'פן',
-        },
+        // {
+        //   firstName: 'אבי',
+        //   middleName: null,
+        //   lastName: 'פן',
+        // },
       ];
       for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
-        console.log(
-          files[fileIndex],
-          '-',
-          new Date(Number(lastModified[fileIndex])),
-        );
         // Validate file's last modified timestamp
         const lastModifiedDate = validateTimestampAndConvertToDate(
           lastModified[fileIndex],
@@ -78,47 +74,51 @@ export class FilesService {
           middleName: customerLastName ? customerMiddleName : null,
           lastName: customerLastName || customerMiddleName,
         };
-        const customerExists = customersToUpdate.findIndex((customerToUpdate) =>
-          compareNames(
-            customerFullName,
-            customerToUpdate.firstName,
-            customerToUpdate.middleName,
-            customerToUpdate.lastName,
-          ),
+        const isCustomerBeingUpdated = customersToUpdate.findIndex(
+          (customerToUpdate) =>
+            compareNames(
+              customerFullName,
+              customerToUpdate.firstName,
+              customerToUpdate.middleName,
+              customerToUpdate.lastName,
+            ),
         );
-        console.log('!@#', customerExists);
-
+        // console.log('!@#', isCustomerBeingUpdated);
+        if (isCustomerBeingUpdated === -1) {
+          customersToUpdate.push(customerFullName);
+        }
         // Extract from path file name and type
         const [fileName, fileType] = fullPath.split('/')[1].split('.');
-        console.log('fileName', fileName);
-        console.log('fileType', fileType);
-        // Investigate file content with FILE_CONTENT
-        let contentType = '';
+        // console.log('fileName', fileName);
+        // console.log('fileType', fileType);
+        // Investigate file content with using FILE_CONTENT dictionary
+        let contentType: string = '';
         for (let [key, values] of Object.entries(FILE_CONTENT)) {
           for (let value of values) {
             if (fileName.includes(value)) {
               contentType = key;
-              break
+              break;
             }
           }
         }
-        // Update most up to date last modified file date
-
-        // Create/Update customer
-        let customer = await this.dataSource.getRepository(Customer).findOne({
-          where: customerFullName,
-        });
-        console.log('customer', customer);
-        // Add it or update it with the relevant information from the file
-        if (customer === null) {
-          const newCustomer = this.dataSource.getRepository(Customer).create({
-            ...customerFullName,
+        // console.log('contentType', contentType);
+        if (!contentType) {
+          errors.push({
+            valid: false,
+            origin: fileName,
+            error: 'Wrong content type',
           });
-        } else {
+          continue;
         }
+        // Read file content based on the type
         // Parse and validate file content - required columns for xls or proper document structure
+        if (contentType === 'registrationDocument') {
+          // Parse and validate file content - required columns for docx or proper document structure
+          const docxContent = await parseDocxBuffer(files[fileIndex].buffer);
+          console.log('docxContent', docxContent);
+        }
 
-        // Connect to my local db (SQL)
+        // Connect to my local db (SQL) for update/create operations
 
         // If the file's last modified date is older than the last update time in the database, skip processing.
 
@@ -128,7 +128,7 @@ export class FilesService {
 
         // Commit the transaction only if all rows are successfully updated.
       }
-      console.log('errors@:', errors);
+      // console.log('errors@:', errors);
       return {
         message: 'Files received successfully',
         files: files.map((file) => ({

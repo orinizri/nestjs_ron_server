@@ -13,6 +13,7 @@ type Customer {
   gender: String!
   hasID: Boolean
   hasRegistrationDocument: Boolean
+  registrationDocumentCreatedAt: DateTime!
   registrationDocumentUpdatedAt: DateTime!
   familyTreeFile: Boolean!
   familyTreeFileUpdatedAt: DateTime!

@@ -85,6 +85,12 @@ export class Customer {
   @Field()
   @IsOptional()
   @IsDate()
+  registrationDocumentCreatedAt: Date;
+
+  @Column()
+  @Field()
+  @IsOptional()
+  @IsDate()
   registrationDocumentUpdatedAt: Date;
 
   @Column({ nullable: false })
@@ -127,14 +133,14 @@ export class Customer {
   @Field({ defaultValue: true })
   isActive: boolean;
 
-  // Created at
+  // Customer Created at
   @CreateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',
   })
   createdAt: Date;
 
-  // Updated at
+  // Customer Updated at
   @UpdateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',

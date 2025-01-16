@@ -1,4 +1,7 @@
 import { FILE_SIZE_LIMIT, FILES_ALLOWED_EXTENSIONS } from 'src/utils/constants';
+import { FullName } from './files.interfaces';
+import * as JSZip from 'jszip';
+import { parseStringPromise } from 'xml2js';
 
 // Helpers
 export function validateFile(file: Express.Multer.File) {
@@ -76,7 +79,42 @@ export function validateTimestampAndConvertToDate(timestamp: string | number): {
   return { valid: true, data: lastModifiedDate };
 }
 
-export function compareNames(fullNameObject, firstName, middleName, lastName) {
+export function compareNames(fullNameObject: FullName, firstName: string, middleName: string, lastName: string): boolean {
   if (!fullNameObject) return false;
   return fullNameObject.firstName === firstName && fullNameObject.middleName === middleName && fullNameObject.lastName === lastName;
+}
+
+export async function parseDocxBuffer(docxBuffer: Buffer): Promise<string[][]> {
+  const zip = new JSZip();
+
+  // Access the XML file where the document's content is stored
+  const docx = await zip.loadAsync(docxBuffer);
+  const documentXml = await docx.file('word/document.xml').async('string');
+
+  // Parse the XML
+  const parsedXml = await parseStringPromise(documentXml);
+
+  // Navigate to tables in the document XML
+  const tables = [];
+  const body = parsedXml['w:document']['w:body'][0];
+  const tableElements = body['w:tbl'];
+
+  if (tableElements) {
+    tableElements.forEach((table: any) => {
+      const rows = table['w:tr']; // Table rows
+      const parsedTable = rows.map((row: any) => {
+        const cells = row['w:tc']; // Table cells
+        return cells.map((cell: any) => {
+          // Extract the text content from each cell
+          const paragraphs = cell['w:p'];
+          return paragraphs
+            .map((p: any) => p['w:r']?.map((r: any) => r['w:t']?.join('')).join(''))
+            .join(' ');
+        });
+      });
+      tables.push(parsedTable);
+    });
+  }
+
+  return tables;
 }
